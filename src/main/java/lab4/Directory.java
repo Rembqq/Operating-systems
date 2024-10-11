@@ -6,7 +6,7 @@ import java.util.Map;
 public class Directory {
     Map<String, FileDescriptor> files;
 
-    public Directory(Map<String, FileDescriptor> files) {
+    public Directory() {
         this.files = new HashMap<>();
     }
 
@@ -19,10 +19,10 @@ public class Directory {
     public void deleteFile(String name) {
         if(files.containsKey(name)) {
             FileDescriptor fd = files.get(name);
-            if(fd.refCount == 1) {
+            if(fd.getRefCount() == 1) {
                 files.remove(name);
             } else {
-                fd.refCount--;
+                fd.setRefCount(fd.getRefCount() - 1);
             }
         }
     }
