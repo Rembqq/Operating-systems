@@ -1,5 +1,6 @@
 package lab4;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FileDescriptor {
@@ -8,10 +9,10 @@ public class FileDescriptor {
     List<Integer> blockIndices;
     int refCount;
 
-    public FileDescriptor(String name, int size, List<Integer> blockIndices, int refCount) {
+    public FileDescriptor(String name) {
         this.name = name;
-        this.size = size;
-        this.blockIndices = blockIndices;
-        this.refCount = refCount;
+        this.size = 0;
+        this.blockIndices = new ArrayList<>();
+        this.refCount = 1;
     }
 }
