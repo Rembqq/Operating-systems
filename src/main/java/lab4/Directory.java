@@ -22,7 +22,7 @@ public class Directory {
             if(fd.getRefCount() == 1) {
                 files.remove(name);
             } else {
-                fd.setRefCount(fd.getRefCount() - 1);
+                fd.decrementRefCount();
             }
         }
     }
