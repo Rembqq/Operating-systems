@@ -160,13 +160,25 @@ public class FileSystemDriver {
 
         // Example usage
         fsDriver.create("file1.txt");
+        System.out.println("Stat: ");
         fsDriver.stat("file1.txt");
+        System.out.println("\nls: ");
+        fsDriver.ls();
         int fd = fsDriver.open("file1.txt");
+        System.out.println("Write Seek Read: ");
         fsDriver.write(fd, 1024); // Writing 1024 bytes
         fsDriver.seek(fd, 0);
         fsDriver.read(fd, 512); // Reading 512 bytes
+
+        System.out.println("\nls: ");
+        fsDriver.ls();
+
+        //fsDriver.stat("file1.txt");
         fsDriver.close(fd);
+        System.out.println("\nStat: ");
+        fsDriver.stat("file1.txt");
         fsDriver.link("file1.txt", "file2.txt");
+        System.out.println("\nStat: ");
         fsDriver.stat("file2.txt");
         fsDriver.unlink("file2.txt");
         fsDriver.truncate("file1.txt", 2048); // Truncate to 2048 bytes
