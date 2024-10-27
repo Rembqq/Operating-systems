@@ -6,10 +6,12 @@ import java.util.Map;
 public class FileSystemDriver {
     private Directory directory;
     private Map<Integer, FileDescriptor> openFiles;
-    private int maxFileDescriptors;
+    private Map<Integer, Integer> fileOffsets;
+    private final int maxFileDescriptors;
     private int nextFd;
 
     public FileSystemDriver(int n) {
+        fileOffsets = new HashMap<>();
         this.directory = new Directory();
         this.openFiles = new HashMap<>();
         this.maxFileDescriptors = n;
@@ -23,7 +25,7 @@ public class FileSystemDriver {
     public void stat(String name) {
         FileDescriptor fd = directory.getFileDescriptor(name);
         if (fd != null) {
-            System.out.println("File Name: " + fd.getName());
+            System.out.println("File Name: " + name);
             System.out.println("File Size: " + fd.getSize());
             System.out.println("Reference Count: " + fd.getRefCount());
         } else {
@@ -50,7 +52,7 @@ public class FileSystemDriver {
             if (nextFd < maxFileDescriptors) {
                 fd.incrementRefCount();
                 openFiles.put(nextFd, fd);
-                fd.setCurrentOffset(0); // Reset offset to 0 when opened
+                fileOffsets.put(nextFd, 0);  // Reset offset to 0 when opened
                 System.out.println("File opened with descriptor: " + nextFd);
                 return nextFd++;
             } else {
@@ -77,7 +79,7 @@ public class FileSystemDriver {
         if (openFiles.containsKey(fd)) {
             FileDescriptor fileDescriptor = openFiles.get(fd);
             if (offset >= 0 && offset <= fileDescriptor.getSize()) {
-                fileDescriptor.setCurrentOffset(offset);
+                fileOffsets.put(nextFd, offset);
                 System.out.println("Seek operation on fd " + fd + " to offset " + offset);
             } else {
                 System.out.println("Invalid offset.");
@@ -90,14 +92,15 @@ public class FileSystemDriver {
     public void read(int fd, int size) {
         if (openFiles.containsKey(fd)) {
             FileDescriptor fileDescriptor = openFiles.get(fd);
-            int currentOffset = fileDescriptor.getCurrentOffset();
+            int currentOffset = fileOffsets.get(fd);
             int bytesRead = Math.min(size, fileDescriptor.getSize() - currentOffset);
             if (bytesRead > 0) {
                 // Simulating reading from file
                 byte[] data = new byte[bytesRead];
                 System.arraycopy(fileDescriptor.getContent(), currentOffset, data, 0, bytesRead);
-                fileDescriptor.setCurrentOffset(currentOffset + bytesRead);
-                System.out.println("Read " + bytesRead + " bytes from file " + fileDescriptor.getName());
+                fileOffsets.put(fd, currentOffset + bytesRead);
+
+                System.out.println("Read " + bytesRead + " bytes from file " + getFileName(fileDescriptor));
                 // Display read data as a string
                 System.out.println("Data: " + new String(data));
             } else {
@@ -111,15 +114,15 @@ public class FileSystemDriver {
     public void write(int fd, int size) {
         if (openFiles.containsKey(fd)) {
             FileDescriptor fileDescriptor = openFiles.get(fd);
-            int currentOffset = fileDescriptor.getCurrentOffset();
+            int currentOffset = fileOffsets.get(fd);
             if (currentOffset + size <= fileDescriptor.getContent().length) {
                 // Simulating writing to file
                 byte[] data = new byte[size];
                 Arrays.fill(data, (byte) 'A'); // Fill with dummy data (character 'A')
                 System.arraycopy(data, 0, fileDescriptor.getContent(), currentOffset, size);
                 fileDescriptor.setSize(Math.max(fileDescriptor.getSize(), currentOffset + size)); // Update size
-                fileDescriptor.setCurrentOffset(currentOffset + size); // Move offset forward
-                System.out.println("Written " + size + " bytes to file " + fileDescriptor.getName());
+                fileOffsets.put(fd, currentOffset + size); // Move offset forward
+                System.out.println("Written " + size + " bytes to file " + getFileName(fileDescriptor));
             } else {
                 System.out.println("Not enough space to write data.");
             }
@@ -154,6 +157,15 @@ public class FileSystemDriver {
         }
     }
 
+    private String getFileName(FileDescriptor fd) {
+        for(Map.Entry<String, FileDescriptor> entry : directory.files.entrySet()) {
+            if(entry.getValue() == fd) {
+                return entry.getKey();
+            }
+        }
+        throw new RuntimeException();
+    }
+
     public static void main(String[] args) {
         FileSystemDriver fsDriver = new FileSystemDriver(10); // Initialize FS with 10 file descriptors
         fsDriver.mkfs();
@@ -169,9 +181,6 @@ public class FileSystemDriver {
         fsDriver.write(fd, 1024); // Writing 1024 bytes
         fsDriver.seek(fd, 0);
         fsDriver.read(fd, 512); // Reading 512 bytes
-
-        System.out.println("\nls: ");
-        fsDriver.ls();
 
         //fsDriver.stat("file1.txt");
         fsDriver.close(fd);
