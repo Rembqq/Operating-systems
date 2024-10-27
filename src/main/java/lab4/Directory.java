@@ -15,8 +15,7 @@ public class Directory {
             files.put(name, new FileDescriptor(name));
         }
     }
-
-    public void deleteFile(String name) {
+    public void removeLink(String name) {
         if(files.containsKey(name)) {
             FileDescriptor fd = files.get(name);
             if(fd.getRefCount() == 1) {
