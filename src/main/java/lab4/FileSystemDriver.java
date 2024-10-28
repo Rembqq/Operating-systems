@@ -178,27 +178,66 @@ public class FileSystemDriver {
     public void link(String name1, String name2) {
         FileDescriptor fd = directory.getFileDescriptor(name1);
         if (fd != null) {
-            directory.createFile(name2);
-            fd.incrementRefCount();
-            System.out.println("Created hard link " + name2 + " to " + name1);
+            if(directory.files.containsKey(name1)){
+                directory.files.put(name2, fd);
+                fd.incrementRefCount();
+                System.out.println("Created hard link " + name2 + " to " + name1);
+            }
         } else {
             System.out.println("File not found: " + name1);
         }
     }
 
+//    public void unlink(String name) {
+//        FileDescriptor fd = directory.getFileDescriptor(name);
+//        if(fd != null) {
+//            if(fd.getRefCount() > 1) {
+//                directory.removeLink(name);
+//                System.out.println("Unlinked file: " + name);
+//            } else {
+//                System.out.println("Cannot unlink the last hard link for the file: " + name);
+//            }
+//        } else {
+//            System.out.println("File not found: " + name);
+//        }
+//    }
+
+
     public void unlink(String name) {
         FileDescriptor fd = directory.getFileDescriptor(name);
-        if(fd != null) {
-            if(fd.getRefCount() > 1) {
-                directory.removeLink(name);
-                System.out.println("Unlinked file: " + name);
+
+        if (fd == null) {
+            System.out.println("File not found: " + name);
+            return;
+        }
+
+        if (!directory.files.containsKey(name)) {
+            System.out.println("No key found: " + name);
+            return;
+        }
+
+        boolean isOpen = openFiles.containsValue(fd);
+        boolean isLastReference = (fd.getRefCount() == 1);
+
+        if (isOpen) {
+            if (isLastReference) {
+                System.out.println("The last reference is opened");
             } else {
-                System.out.println("Cannot unlink the last hard link for the file: " + name);
+                fd.decrementRefCount();
+                System.out.println("One reference deleted: " + name);
             }
         } else {
-            System.out.println("File not found: " + name);
+            fd.decrementRefCount();
+            directory.files.remove(name);
+            if (isLastReference) {
+                System.out.println("Removed the last link: " + name);
+            } else {
+                System.out.println("One reference deleted: " + name);
+            }
         }
+
     }
+
 
     public void truncate(String name, int size) {
         FileDescriptor fd = directory.getFileDescriptor(name);
@@ -227,8 +266,10 @@ public class FileSystemDriver {
         fsDriver.create("file1.txt");
         System.out.println("Stat: ");
         fsDriver.stat("file1.txt");
+
         System.out.println("\nls: ");
         fsDriver.ls();
+
         int fd = fsDriver.open("file1.txt");
         System.out.println("Write Seek Read: ");
         fsDriver.write(fd, 8193); // Writing 4096 * 2 + 1 bytes
@@ -238,13 +279,29 @@ public class FileSystemDriver {
         fsDriver.read(fd, 8000); // Reading 8000 bytes
 
         //fsDriver.stat("file1.txt");
-        //fsDriver.close(fd);
+        fsDriver.close(fd);
         System.out.println("\nStat: ");
         fsDriver.stat("file1.txt");
+
         fsDriver.link("file1.txt", "file2.txt");
+
         System.out.println("\nStat: ");
         fsDriver.stat("file2.txt");
+
+        System.out.println("\nls: ");
+        fsDriver.ls();
+
         fsDriver.unlink("file2.txt");
+
+        System.out.println("\nls: ");
+        fsDriver.ls();
+
+        System.out.println("\nStat: ");
+        fsDriver.stat("file1.txt");
+
         fsDriver.truncate("file1.txt", 2048); // Truncate to 2048 bytes
+
+        System.out.println("\nStat: ");
+        fsDriver.stat("file1.txt");
     }
 }

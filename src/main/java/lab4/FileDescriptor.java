@@ -16,8 +16,6 @@ public class FileDescriptor {
     //private int[] directBlocks;             // This is a map of block numbers, so that the skin
                                             // element indicates a specific block in which the file data is saved.
     private final Map<Integer, byte[]> blockMap;
-
-    // private byte[] content;
     private int refCount;
 
     public FileDescriptor(String name) {
@@ -33,17 +31,6 @@ public class FileDescriptor {
         //this.content = new byte[DIRECT_BLOCKS * BLOCK_SIZE];
         this.refCount = 1;
     }
-
-//    public String getName() {
-//        return name;
-//    }
-//
-//    public void setName(String name) {
-//        if (name.length() > MAX_FILE_NAME_LENGTH) {
-//            throw new IllegalArgumentException("File name too long!");
-//        }
-//        this.name = name;
-//    }
 
     public int getSize() {
         return size;
@@ -97,8 +84,4 @@ public class FileDescriptor {
     public void decrementRefCount() {
         refCount--;
     }
-
-//    public byte[] getContent() {
-//        return content;
-//    }
 }

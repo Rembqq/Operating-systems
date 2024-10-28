@@ -15,16 +15,16 @@ public class Directory {
             files.put(name, new FileDescriptor(name));
         }
     }
-    public void removeLink(String name) {
-        if(files.containsKey(name)) {
-            FileDescriptor fd = files.get(name);
-            if(fd.getRefCount() == 1) {
-                files.remove(name);
-            } else {
-                fd.decrementRefCount();
-            }
-        }
-    }
+//    public void removeLink(String name) {
+//        if(files.containsKey(name)) {
+//            FileDescriptor fd = files.get(name);
+//            if(fd.getRefCount() == 1) {
+//                files.remove(name);
+//            } else {
+//                fd.decrementRefCount();
+//            }
+//        }
+//    }
 
     public FileDescriptor getFileDescriptor(String name) {
         return files.get(name);
