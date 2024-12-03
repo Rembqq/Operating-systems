@@ -1,5 +1,6 @@
 package lab3;
 
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ public class WorkingSet {
     public void accessPage(int pageId) {
         if (pages.contains(pageId)) {
             // Якщо сторінка вже є в робочому наборі, переміщуємо її на початок
+            //System.out.println("Moving page " + pageId + " to start");
             pages.remove(pageId);
             pages.add(pageId);
         } else {
@@ -32,6 +34,26 @@ public class WorkingSet {
             pages.add(pageId);
         }
     }
+
+//    public void update() {
+//        Iterator<Integer> iterator = pages.iterator();
+//
+//        while (iterator.hasNext()) {
+//            int page = iterator.next();
+//
+//            // Логіка видалення сторінок, які не використовуються
+//            if (shouldRemovePage(page)) { // Замініть на вашу умову
+//                System.out.println("Removing page " + page + " from working set");
+//                iterator.remove();
+//            }
+//        }
+//    }
+//
+//    private boolean shouldRemovePage(int page) {
+//        // Умови видалення сторінки з робочого набору
+//        // Наприклад: якщо сторінка не використовувалася протягом останнього часу
+//        return !recentlyAccessedPages.contains(page); // Додайте потрібну умову
+//    }
 
     @Override
     public String toString() {

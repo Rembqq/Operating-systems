@@ -46,7 +46,11 @@ public class Kernel {
         processQueue.add(process);
     }
 
-    public void run() {
+    public void run() throws InterruptedException {
+
+        int totalPageRequests = 0; // Общее количество запросов страниц
+        int totalPageFaults = 0;   // Общее количество страничных промахов
+
         Random random = new Random();
 
         while (!processQueue.isEmpty()) {
@@ -56,6 +60,8 @@ public class Kernel {
             WorkingSet workingSet = process.getWorkingSet();
 
             for (int i = 0; i < 100; i++) { // Симуляція 100 звернень до сторінок
+                totalPageRequests++;
+
                 int virtualPageId;
 
                 // 90% звернень до робочого набору
@@ -72,6 +78,7 @@ public class Kernel {
                 PageTable.PageEntry entry = pageTable.getEntry(virtualPageId);
 
                 if (!entry.present) { // Сторінковий промах
+                    totalPageFaults++;
                     System.out.println("Page fault at process " + process.getId() + ", page " + virtualPageId);
 
                     int physicalPageId = mmu.allocatePage(process.getId(), virtualPageId, useWSClock);
@@ -89,8 +96,12 @@ public class Kernel {
                 workingSet.accessPage(virtualPageId);
             }
 
+            // Output page fault ratio:
+            System.out.println("Page fault ratio: " + ((double)(totalPageFaults / totalPageRequests) * 100));
+
             // Повертаємо процес в чергу для наступного виконання
             processQueue.add(process);
+            Thread.sleep(2000);
         }
     }
 }
