@@ -4,33 +4,6 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.Random;
 
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//public class Kernel {
-//    private List<Process> processes;
-//    private MMU mmu;
-//    private int maxProcesses;
-//
-//    public Kernel(int maxProcesses, int totalPhysicalPages) {
-//        this.processes = new ArrayList<>();
-//        this.mmu = new MMU(totalPhysicalPages);
-//        this.maxProcesses = maxProcesses;
-//    }
-//
-//    public void createProcess(int totalVirtualPages) {
-//        if(processes.size() < maxProcesses) {
-//            Process process = new Process(processes.size(), totalVirtualPages);
-//            processes.add(process);
-//        }
-//    }
-//
-//    public void executeProcess() {
-//        for(Process process: processes) {
-//            mmu.handleProcess(process);
-//        }
-//    }
-//}
 public class Kernel {
     private final MMU mmu;
     private final Queue<Process> processQueue = new ArrayDeque<>();
@@ -48,8 +21,8 @@ public class Kernel {
 
     public void run() throws InterruptedException {
 
-        int totalPageRequests = 0; // Общее количество запросов страниц
-        int totalPageFaults = 0;   // Общее количество страничных промахов
+        int totalPageRequests = 0; // Total number of page requests
+        int totalPageFaults = 0;   // Total number of page misses
 
         Random random = new Random();
 
@@ -97,11 +70,17 @@ public class Kernel {
             }
 
             // Output page fault ratio:
-            System.out.println("Page fault ratio: " + ((double)(totalPageFaults / totalPageRequests) * 100));
+            double pageFaultRatio = totalPageRequests > 0
+                    ? ((double) totalPageFaults / totalPageRequests * 100)
+                    : 0.0;
+            System.out.printf("Iteration: Page Faults = %d, Total Requests = %d, Page Fault Ratio = %.6f%n",
+                    totalPageFaults, totalPageRequests, pageFaultRatio);
 
             // Повертаємо процес в чергу для наступного виконання
             processQueue.add(process);
-            Thread.sleep(2000);
+
+            //Thread.sleep(1000);
+
         }
     }
 }

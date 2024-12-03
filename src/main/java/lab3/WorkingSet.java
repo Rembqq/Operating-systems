@@ -34,27 +34,6 @@ public class WorkingSet {
             pages.add(pageId);
         }
     }
-
-//    public void update() {
-//        Iterator<Integer> iterator = pages.iterator();
-//
-//        while (iterator.hasNext()) {
-//            int page = iterator.next();
-//
-//            // Логіка видалення сторінок, які не використовуються
-//            if (shouldRemovePage(page)) { // Замініть на вашу умову
-//                System.out.println("Removing page " + page + " from working set");
-//                iterator.remove();
-//            }
-//        }
-//    }
-//
-//    private boolean shouldRemovePage(int page) {
-//        // Умови видалення сторінки з робочого набору
-//        // Наприклад: якщо сторінка не використовувалася протягом останнього часу
-//        return !recentlyAccessedPages.contains(page); // Додайте потрібну умову
-//    }
-
     @Override
     public String toString() {
         return "Working Set: " + pages.toString();
