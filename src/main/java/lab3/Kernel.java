@@ -6,17 +6,21 @@ import java.util.Random;
 
 public class Kernel {
     private final MMU mmu;
-    private final Queue<Process> processQueue = new ArrayDeque<>();
+    private static final Queue<Process> processQueue = new ArrayDeque<>();
     private final boolean useWSClock; // Вибір алгоритму заміни сторінок
 
-    public Kernel(int physicalMemorySize, boolean useWSClock) {
-        this.mmu = new MMU(physicalMemorySize);
+    public Kernel(int physicalMemorySize, boolean useWSClock, int tau) {
+        this.mmu = new MMU(physicalMemorySize, tau);
         this.useWSClock = useWSClock;
     }
 
     public void createProcess(int processId, int virtualMemorySize, int workingSetSize) {
         Process process = new Process(processId, virtualMemorySize, workingSetSize);
         processQueue.add(process);
+    }
+
+    public static Queue<Process> getProcessQueue() {
+        return processQueue;
     }
 
     public void run() throws InterruptedException {
@@ -80,7 +84,6 @@ public class Kernel {
             processQueue.add(process);
 
             //Thread.sleep(1000);
-
         }
     }
 }

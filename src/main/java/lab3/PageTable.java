@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PageTable {
-    private final List<PageEntry> pageEntries;
+    final List<PageEntry> pageEntries;
 
     public PageTable(int size) {
         this.pageEntries = new ArrayList<>();
@@ -26,17 +26,13 @@ public class PageTable {
         public boolean accessed = false; // Чи була сторінка використана
         public boolean modified = false; // Чи була сторінка модифікована
         public int physicalPageId = -1; // Індекс фізичної сторінки
+        public long lastAccessTime = System.currentTimeMillis(); // Час останнього доступу
 
         @Override
         public String toString() {
-            return String.format("Present: %s, Accessed: %s, Modified: %s, PhysicalPageId: %d",
-                    present, accessed, modified, physicalPageId);
+            return String.format("Present: %s, Accessed: %s, Modified: %s, PhysicalPageId: %d, LastAccessTime: %d",
+                    present, accessed, modified, physicalPageId, lastAccessTime);
         }
     }
 }
-
-
-
-
-
 
